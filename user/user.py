@@ -13,7 +13,7 @@ class User(Db):
             self.cursor.execute(f"""INSERT INTO user VALUES('{str(uuid4())[0:8]}', '{dict_values['name']}', 
                                 '{dict_values['cpf'].replace(".","").replace("-","")}', 
                                 '{dict_values['email']}','{dict_values['phone_number']}', 
-                                '{datetime.strftime(datetime.now(), '%H:%M:%S  %d/%m/%Y')}', '{'Never'}')""")
+                                '{datetime.strftime(datetime.now(), '%d/%m/%Y  %H:%M:%S')}', '{'Never'}')""")
             return "Cadastro registrado !!", 200
         except:
             return "Algo deu errado ...", 400
@@ -21,7 +21,6 @@ class User(Db):
     def delete_user(self):
         dict_values = json.loads(request.data.decode("utf-8"))
         try:
-            print("aaaa")
             self.cursor.execute(f"DELETE FROM user WHERE id = '{dict_values['id']}'")
             return "Usuário deletado !!", 200
         except:
@@ -32,7 +31,7 @@ class User(Db):
             self.cursor.execute("SELECT * FROM user")
             columns = [i[0] for i in self.cursor.description]
             df = pd.DataFrame(self.cursor.fetchall(), columns=columns)
-            return df.to_json(orient="records")
+            return df.to_json(orient="records").replace("\/","/")
         except:
             return "Algo deu errado ...", 400
 
@@ -45,7 +44,7 @@ class User(Db):
 
         try:
             self.cursor.execute(f"UPDATE user SET {', '.join(set_sql_list)}, "
-                                f"updated_at = '{datetime.strftime(datetime.now(), '%H:%M:%S  %d/%m/%Y')}' "
+                                f"updated_at = '{datetime.strftime(datetime.now(), '%d/%m/%Y  %H:%M:%S')}' "
                                 f"WHERE id = '{dict_values['id']}'")
             return "Dados Alterados !!", 200
         except:
